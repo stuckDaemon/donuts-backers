@@ -1,17 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Buddy } from './entities/buddy.entity';
 import { GroupsService } from '../groups/groups.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class BuddiesService {
-  readonly NUMBER_OF_BUDDIES = 1000;
-  readonly GROUP_SIZE = 4;
-  readonly GROUP_NUMBER = Math.floor(this.NUMBER_OF_BUDDIES / this.GROUP_SIZE);
+  constructor(
+    @InjectRepository(Buddy)
+    private buddyRepository: Repository<Buddy>,
+  ) {}
 
-  private groupService = new GroupsService();
+  @Inject(GroupsService)
+  private groupService: GroupsService;
 
   async start(): Promise<any> {
-    const buddies = await this.findAll();
+    const buddies = await this.buddyRepository.find();
     const groups = await this.groupService.createGroups();
     const groupsToMeet = await this.groupService.populateGroups(
       buddies,
@@ -29,7 +34,15 @@ export class BuddiesService {
     console.log(`Invitation sent`);
   }
 
-  async findAll() {
-    return await Buddy.findAll();
+  async generate() {
+    const buddies = [];
+    for (let i = 0; i < 1000; i++) {
+      const buddy = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+      } as Buddy;
+      buddies.push(buddy);
+    }
+    return this.buddyRepository.save(buddies);
   }
 }

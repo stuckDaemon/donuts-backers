@@ -1,42 +1,13 @@
-import {
-  Model,
-  Column,
-  Table,
-  DataType,
-  CreatedAt,
-  UpdatedAt,
-  DeletedAt,
-} from 'sequelize-typescript';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Table({
-  timestamps: true,
-  paranoid: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt',
-  freezeTableName: true,
-  tableName: 'Users',
-})
-export class User extends Model {
-  @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-    primaryKey: true,
-  })
-  id: string; // Change data type to string for UUID
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column
+  @Column()
   name: string;
 
-  @Column
+  @Column()
   email: string;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
-
-  @DeletedAt
-  deletedAt: Date;
 }

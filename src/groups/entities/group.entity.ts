@@ -1,30 +1,26 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { Buddy } from '../../buddies/entities/buddy.entity';
 import { Question } from '../../questions/entities/question.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Table({
-  timestamps: true,
-  paranoid: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt',
-  freezeTableName: true,
-  tableName: 'Groups',
-})
-export class Group extends Model {
-  @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-    primaryKey: true,
-  })
-  id?: string; // Change data type to string for UUID
+@Entity()
+export class Group {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column
-  name?: string;
+  @Column()
+  name: string;
 
-  @Column
+  @OneToOne(() => Question)
+  @JoinColumn()
   breakingIceQuestion?: Question;
 
-  @Column
+  @OneToMany(() => Buddy, (buddy) => buddy.group)
   buddies?: Buddy[];
 }

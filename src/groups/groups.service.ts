@@ -1,25 +1,30 @@
-import { uuidv4 } from 'uuid';
-import { Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
+import { Inject, Injectable } from '@nestjs/common';
 import { Buddy } from '../buddies/entities/buddy.entity';
 import { Group } from './entities/group.entity';
-import { names, uniqueNamesGenerator } from 'unique-names-generator';
-import { sequelize } from '../../models';
 import { QuestionsService } from '../questions/questions.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class GroupsService {
+  @InjectRepository(Group)
+  private groupRepository: Repository<Group>;
+
+  @Inject(QuestionsService)
+  private questionsService: QuestionsService;
+
   readonly NUMBER_OF_BUDDIES = 1000;
   readonly GROUP_SIZE = 4;
   readonly GROUP_NUMBER = Math.floor(this.NUMBER_OF_BUDDIES / this.GROUP_SIZE);
-
-  private questionService = new QuestionsService();
 
   async populateGroups(buddies: Buddy[], groups: Group[]) {
     const shuffledBuddies = this.shuffle(buddies);
     let i = 0;
     for (const group of groups) {
       group.buddies = shuffledBuddies.slice(i, i + this.GROUP_SIZE);
-      await group.save();
+      this.groupRepository.create(group);
       i += this.GROUP_SIZE;
     }
 
@@ -28,20 +33,19 @@ export class GroupsService {
 
   async createGroups(): Promise<Group[]> {
     const groups: Group[] = [];
-    const questions = await this.questionService.findAll();
-    const transaction = await sequelize.transaction();
-
+    const questions = await this.questionsService.findAll();
     const shuffledQuestion = this.shuffle(questions);
+    console.log('shuffledQuestion', shuffledQuestion.length);
     for (let i = 0; i < this.GROUP_NUMBER; i++) {
       const group = {
         id: uuidv4(),
-        name: uniqueNamesGenerator({ dictionaries: [names] }),
+        name: faker.person.firstName(),
         breakingIceQuestion: shuffledQuestion[i],
         createdAt: new Date(),
       } as Group;
-      await Group.create({ group }, { transaction });
+      groups.push(group);
     }
-    await transaction.commit();
+    await this.groupRepository.save(groups);
     return groups;
   }
 

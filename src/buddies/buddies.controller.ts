@@ -5,7 +5,11 @@ import { BuddiesService } from './buddies.service';
 export class BuddiesController {
   constructor(private readonly buddiesService: BuddiesService) {}
 
-  @Get() start() {
+  @Get('/start') start() {
     return this.buddiesService.start();
+  }
+
+  @Get('/generate') generate() {
+    return this.buddiesService.generate();
   }
 }

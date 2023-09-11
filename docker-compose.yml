@@ -3,16 +3,11 @@ services:
   db:
     image: 'postgres:latest'
     ports:
-      - '5432:5432'
+      - '4111:5432'
     environment:
-      POSTGRES_PASSWORD: password
       POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
 
   # api:
   #   build:
@@ -29,17 +24,18 @@ services:
   #     db:
   #       condition: service_healthy  # Wait for the database service to be healthy
 
-  test-db:
-    image: 'postgres:latest'
-    ports:
-      - '5434:5432'
-    environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: user
-      POSTGRES_DB: test_db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
+#  test-db:
+#    image: 'postgres:latest'
+#    ports:
+#      - '5434:5432'
+#    environment:
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_USER: user
+#      POSTGRES_DB: test_db
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U user"]
+#      interval: 30s
+#      timeout: 5s
+#      retries: 3
+#
+#
